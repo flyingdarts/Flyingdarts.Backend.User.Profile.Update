@@ -14,8 +14,8 @@ public static class ServiceFactory
     public static ServiceProvider GetServiceProvider()
     {
         var configuration = new ConfigurationBuilder()
-    .AddSystemsManager($"/{System.Environment.GetEnvironmentVariable("EnvironmentName")}/Application")
-    .Build();
+            .AddSystemsManager($"/{System.Environment.GetEnvironmentVariable("EnvironmentName")}/Application")
+            .Build();
 
         var services = new ServiceCollection();
         services.AddDefaultAWSOptions(configuration.GetAWSOptions());
