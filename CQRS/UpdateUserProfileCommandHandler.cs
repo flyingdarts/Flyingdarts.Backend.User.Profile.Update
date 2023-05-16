@@ -8,12 +8,6 @@ using Flyingdarts.Shared;
 using MediatR;
 using Microsoft.Extensions.Options;
 using Amazon.DynamoDBv2.DocumentModel;
-using System.Linq;
-using System.Diagnostics;
-using System.Net.Http;
-using System.Collections.Generic;
-using Amazon.DynamoDBv2.Model;
-using Amazon.DynamoDBv2;
 
 public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfileCommand, APIGatewayProxyResponse>
 {
