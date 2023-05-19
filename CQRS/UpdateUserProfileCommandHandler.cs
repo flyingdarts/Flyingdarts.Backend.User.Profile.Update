@@ -38,7 +38,7 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
         var lambdaClient = new AmazonLambdaClient();
         var invokeRequest = new InvokeRequest()
         {
-            FunctionName = "Flyingdarts-Backend-User-Profile-VerifiyEmail",
+            FunctionName = "Flyingdarts-Backend-User-Profile-VerifyEmail",
             Payload = JsonSerializer.Serialize(new { Email = request.Email, Subject = "UpdateUserProfileCommand", Body = "Body from UpdateUserProfileVerifyEmail"})
         };
 
