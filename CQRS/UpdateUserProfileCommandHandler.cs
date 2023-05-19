@@ -8,6 +8,7 @@ using Flyingdarts.Shared;
 using MediatR;
 using Microsoft.Extensions.Options;
 using Amazon.DynamoDBv2.DocumentModel;
+using Flyingdarts.Lambdas.Shared;
 
 public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfileCommand, APIGatewayProxyResponse>
 {
@@ -28,11 +29,14 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
         userWrite.AddPutItem(user);
 
         await userWrite.ExecuteAsync(cancellationToken);
+        var socketMessage = new SocketMessage<UpdateUserProfileCommand>();
+        socketMessage.Message = request;
+        socketMessage.Action = "v2/user/profile/update";
 
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonSerializer.Serialize(userProfile)
+            Body = JsonSerializer.Serialize(socketMessage)
         };
     }
 
