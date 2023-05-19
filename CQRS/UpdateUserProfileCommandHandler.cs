@@ -8,6 +8,8 @@ using Flyingdarts.Shared;
 using MediatR;
 using Microsoft.Extensions.Options;
 using Amazon.DynamoDBv2.DocumentModel;
+using Amazon.Lambda;
+using Amazon.Lambda.Model;
 using Flyingdarts.Lambdas.Shared;
 
 public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfileCommand, APIGatewayProxyResponse>
@@ -32,6 +34,15 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
         var socketMessage = new SocketMessage<UpdateUserProfileCommand>();
         socketMessage.Message = request;
         socketMessage.Action = "v2/user/profile/update";
+
+        var lambdaClient = new AmazonLambdaClient();
+        var invokeRequest = new InvokeRequest()
+        {
+            FunctionName = "Flyingdarts-Backend-User-Profile-VerifiyEmail",
+            Payload = JsonSerializer.Serialize(new { Email = request.Email, Subject = "UpdateUserProfileCommand", Body = "Body from UpdateUserProfileVerifyEmail"})
+        };
+
+        await lambdaClient.InvokeAsync(invokeRequest);
 
         return new APIGatewayProxyResponse
         {
