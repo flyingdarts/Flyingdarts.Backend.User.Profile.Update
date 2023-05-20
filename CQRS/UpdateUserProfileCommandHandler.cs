@@ -39,7 +39,12 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
         var invokeRequest = new InvokeRequest()
         {
             FunctionName = "Flyingdarts-Backend-User-Profile-VerifyEmail",
-            Payload = JsonSerializer.Serialize(new { Email = request.Email, Subject = "UpdateUserProfileCommand", Body = "Body from UpdateUserProfileVerifyEmail"})
+            Payload = JsonSerializer.Serialize(new
+            {
+                Email = request.Email, 
+                Subject = "UpdateUserProfileCommand", 
+                Body = "Body from UpdateUserProfileVerifyEmail"
+            })
         };
 
         await lambdaClient.InvokeAsync(invokeRequest);
