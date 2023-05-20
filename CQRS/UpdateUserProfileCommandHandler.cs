@@ -35,20 +35,6 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
         socketMessage.Message = request;
         socketMessage.Action = "v2/user/profile/update";
 
-        var lambdaClient = new AmazonLambdaClient();
-        var invokeRequest = new InvokeRequest()
-        {
-            FunctionName = "Flyingdarts-Backend-User-Profile-VerifyEmail",
-            Payload = JsonSerializer.Serialize(new
-            {
-                Email = request.Email, 
-                Subject = "UpdateUserProfileCommand", 
-                Body = "Body from UpdateUserProfileVerifyEmail"
-            })
-        };
-
-        await lambdaClient.InvokeAsync(invokeRequest);
-
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
