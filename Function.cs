@@ -11,6 +11,7 @@ var serializer = new DefaultLambdaJsonSerializer(x => x.PropertyNameCaseInsensit
 var handler = async (APIGatewayProxyRequest request) =>
 {
     var socketRequest = request.To<UpdateUserProfileCommand>(serializer);
+    socketRequest.Message.ConnectionId = request.RequestContext.ConnectionId;
     return await innerHandler.Handle(socketRequest);
 };
 
