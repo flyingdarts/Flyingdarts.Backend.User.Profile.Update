@@ -11,6 +11,7 @@ using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.Lambda;
 using Amazon.Lambda.Model;
 using Flyingdarts.Lambdas.Shared;
+using System.Linq;
 
 public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfileCommand, APIGatewayProxyResponse>
 {
@@ -24,13 +25,19 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
     }
     public async Task<APIGatewayProxyResponse> Handle(UpdateUserProfileCommand request, CancellationToken cancellationToken)
     {
-        var userProfile = UserProfile.Create(request.UserName, request.Email, request.Country);
-        var user = User.Create(request.CognitoUserId, userProfile);
+        var user = await GetUserAsync(request.UserId, cancellationToken);
 
-        var userWrite = _dbContext.CreateBatchWrite<User>(_options.Value.ToOperationConfig());
+        user.ConnectionId = request.ConnectionId;
+        user.Profile.Country = request.Country;
+        user.Profile.Email = request.Email;
+        user.Profile.UserName = request.UserName;
+
+        var userWrite = _dbContext.CreateBatchWrite<User>(_options.Value.ToOperationConfig()); 
+        
         userWrite.AddPutItem(user);
 
         await userWrite.ExecuteAsync(cancellationToken);
+
         var socketMessage = new SocketMessage<UpdateUserProfileCommand>();
         socketMessage.Message = request;
         socketMessage.Action = "v2/user/profile/update";
@@ -42,10 +49,16 @@ public class UpdateUserProfileCommandHandler : IRequestHandler<UpdateUserProfile
         };
     }
 
-    private static QueryOperationConfig QueryConfig(string cognitoUserId) 
+    private async Task<User> GetUserAsync(string userId, CancellationToken cancellationToken) 
+    {
+        var results = await _dbContext.FromQueryAsync<User>(QueryConfig(userId)).GetRemainingAsync(cancellationToken);
+
+        return results.Single();
+    }
+    private static QueryOperationConfig QueryConfig(string userId) 
     {
         var queryFilter = new QueryFilter("PK", QueryOperator.Equal, Constants.User);
-        queryFilter.AddCondition("SK", QueryOperator.BeginsWith, cognitoUserId);
+        queryFilter.AddCondition("SK", QueryOperator.BeginsWith, userId);
         return new QueryOperationConfig { Filter = queryFilter };
     }
 }
