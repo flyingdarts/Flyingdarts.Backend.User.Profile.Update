@@ -4,8 +4,8 @@ public class UpdateUserProfileCommandValidator : AbstractValidator<UpdateUserPro
 {
     public UpdateUserProfileCommandValidator()
     {
-        RuleFor(x => x.CognitoUserId)
-                        .Must(x => x.Contains("facebook"));
+        RuleFor(x => x.UserId)
+                        .Must(x => long.TryParse(x, out var number));
 
         RuleFor(x => x.UserName)
             .MinimumLength(2)
